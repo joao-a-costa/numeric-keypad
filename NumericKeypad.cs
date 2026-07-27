@@ -12,9 +12,13 @@ namespace NumericKeypad
         private Point _dragStart;
         private bool _dragging;
 
+        // When true, allows targets other than TextBox/NumericUpDown; DigitButton_Click etc.
+        // only know how to drive those two, so other controls won't receive input automatically.
+        public static bool SkipTargetValidation { get; set; } = false;
+
         public NumericKeypad(Control target, string placeholderText = null)
         {
-            if (target == null || (!(target is TextBox) && !(target is NumericUpDown)))
+            if (target == null || (!SkipTargetValidation && !(target is TextBox) && !(target is NumericUpDown)))
                 throw new ArgumentException("Target must be a TextBox or NumericUpDown");
 
             _target = target;
