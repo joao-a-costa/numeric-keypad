@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>NumericKeypad</id>
+        <version>1.0.0</version>
+        <authors>João Costa</authors>
+        <owners>João Costa</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A lightweight Windows Forms control library that provides a borderless, draggable on-screen numeric keypad popup for TextBox and NumericUpDown controls, ideal for touch-screen or kiosk-style desktop applications.</description>
+        <projectUrl>https://github.com/joao-a-costa/smart-numeric-keypad</projectUrl>
+        <readme>README.md</readme>
+        <tags>windows-forms controls ui validation icons</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.7.2">
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Release\NumericKeypad.dll" target="lib\net472" />
+        <file src="README.md" target="" />
+    </files>
+</package>
