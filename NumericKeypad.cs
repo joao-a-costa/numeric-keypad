@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -12,13 +13,9 @@ namespace NumericKeypad
         private Point _dragStart;
         private bool _dragging;
 
-        // When true, allows targets other than TextBox/NumericUpDown; DigitButton_Click etc.
-        // only know how to drive those two, so other controls won't receive input automatically.
-        public static bool SkipTargetValidation { get; set; } = false;
-
-        public NumericKeypad(Control target, string placeholderText = null)
+        public NumericKeypad(Control target, string placeholderText = null, bool skipTargetValidation = false)
         {
-            if (target == null || (!SkipTargetValidation && !(target is TextBox) && !(target is NumericUpDown)))
+            if (target == null || (!skipTargetValidation && !(target is TextBox) && !(target is NumericUpDown)))
                 throw new ArgumentException("Target must be a TextBox or NumericUpDown");
 
             _target = target;
@@ -64,8 +61,27 @@ namespace NumericKeypad
             if (_target == null || _target.IsDisposed)
                 return;
 
-            string digit = ((Button)sender).Text;
+            AppendDigit(((Button)sender).Text);
+        }
 
+        private void DecimalSeparatorButton_Click(object sender, EventArgs e)
+        {
+            if (_target == null || _target.IsDisposed)
+                return;
+
+            AppendDecimalSeparator();
+        }
+
+        private void BackspaceButton_Click(object sender, EventArgs e)
+        {
+            if (_target == null || _target.IsDisposed)
+                return;
+
+            RemoveLastCharacter();
+        }
+
+        private void AppendDigit(string digit)
+        {
             if (_target is TextBox textBox)
             {
                 if (!string.IsNullOrEmpty(_placeholderText) && textBox.Text == _placeholderText)
@@ -79,14 +95,17 @@ namespace NumericKeypad
                 foreach (char c in digit)
                     SendKeys.Send(c.ToString());
             }
+            else
+            {
+                if (!string.IsNullOrEmpty(_placeholderText) && _target.Text == _placeholderText)
+                    _target.Text = string.Empty;
+                _target.Text += digit;
+            }
         }
 
-        private void DecimalSeparatorButton_Click(object sender, EventArgs e)
+        private void AppendDecimalSeparator()
         {
-            if (_target == null || _target.IsDisposed)
-                return;
-
-            string separator = ","; // Portuguese locale uses comma
+            const string separator = ","; // Portuguese locale uses comma
 
             if (_target is TextBox textBox)
             {
@@ -102,13 +121,18 @@ namespace NumericKeypad
                 numericUpDown.Focus();
                 SendKeys.Send(",");
             }
+            else
+            {
+                if (!string.IsNullOrEmpty(_placeholderText) && _target.Text == _placeholderText)
+                    _target.Text = string.Empty;
+
+                if (!_target.Text.Contains(",") && !_target.Text.Contains("."))
+                    _target.Text += separator;
+            }
         }
 
-        private void BackspaceButton_Click(object sender, EventArgs e)
+        private void RemoveLastCharacter()
         {
-            if (_target == null || _target.IsDisposed)
-                return;
-
             if (_target is TextBox textBox)
             {
                 if (!string.IsNullOrEmpty(_placeholderText) && textBox.Text == _placeholderText)
@@ -127,6 +151,17 @@ namespace NumericKeypad
             {
                 numericUpDown.Focus();
                 SendKeys.Send("{BACKSPACE}");
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(_placeholderText) && _target.Text == _placeholderText)
+                {
+                    _target.Text = string.Empty;
+                    return;
+                }
+
+                if (_target.Text.Length > 0)
+                    _target.Text = _target.Text.Substring(0, _target.Text.Length - 1);
             }
         }
 
